@@ -9,7 +9,7 @@
     "node-red-mcp-server": "./bin/node-red-mcp-server.mjs"
   },
   "scripts": {
-    "test": "echo \"No tests yet, but passing for now!\" && exit 0",
+    "test": "node --test",
     "start": "node ./bin/node-red-mcp-server.mjs"
   },
   "engines": {
