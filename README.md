@@ -41,6 +41,28 @@ npm install node-red-mcp-server
 node-red-mcp-server --url http://localhost:1880 --token YOUR_TOKEN
 ```
 
+### Remote (Streamable HTTP) mode
+
+By default the server speaks MCP over **stdio**, which is what local desktop clients use.
+To run it as a long-lived **remote** MCP server (for example behind a reverse proxy or
+tunnel), start it with the `--http` flag, which exposes a Streamable HTTP endpoint at `/mcp`:
+
+```bash
+node-red-mcp-server --http 3000 --url http://localhost:1880 --token YOUR_TOKEN
+```
+
+The endpoint is then available at `http://localhost:3000/mcp`. HTTP mode can also be selected
+with environment variables (`MCP_TRANSPORT=http` and/or `MCP_HTTP_PORT=3000`), which is how
+the bundled `Dockerfile` runs it:
+
+```bash
+docker build -t node-red-mcp .
+docker run -p 3000:3000 -e NODE_RED_URL=http://host.docker.internal:1880 node-red-mcp
+```
+
+> Note: HTTP mode does **not** add authentication of its own. Put it behind an
+> authenticating reverse proxy / tunnel (e.g. Cloudflare Access) if you expose it publicly.
+
 ### Configuration via `.env`
 
 Create a `.env` file:
@@ -129,6 +151,7 @@ await server.start();
 |----------------|-------|--------------------------------------|
 | `--url`        | `-u`  | Node-RED base URL                    |
 | `--token`      | `-t`  | API access token                     |
+| `--http`       |       | Run in Streamable HTTP mode on the given port (default `3000`) instead of stdio |
 | `--verbose`    | `-v`  | Enable verbose logging               |
 | `--help`       | `-h`  | Show help                            |
 | `--version`    | `-V`  | Show version number                  |
@@ -139,6 +162,8 @@ await server.start();
 |------------------|--------------------------------|
 | `NODE_RED_URL`   | URL of your Node-RED instance |
 | `NODE_RED_TOKEN` | API access token              |
+| `MCP_TRANSPORT`  | Set to `http` to run in Streamable HTTP mode (default `stdio`) |
+| `MCP_HTTP_PORT`  | Port for HTTP mode (default `3000`; setting it implies HTTP mode) |
 
 ## MCP Tools
 
@@ -176,7 +201,7 @@ await server.start();
 
 ## Requirements
 
-- Node.js v16 or newer
+- Node.js v18 or newer
 - A running Node-RED instance with HTTP API access
 
 ## License
