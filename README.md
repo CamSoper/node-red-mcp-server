@@ -211,8 +211,8 @@ await server.start();
 
 ### Settings Tools
 
-- `get-settings` — Get Node-RED runtime settings
-- `get-diagnostics` — Fetch diagnostics info
+- `get-settings` — Get Node-RED runtime settings (credential secrets, tokens, and other sensitive values are redacted)
+- `get-diagnostics` — Fetch diagnostics info (sensitive values are redacted)
 
 ### Utility Tools
 
