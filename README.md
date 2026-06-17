@@ -63,6 +63,23 @@ docker run -p 3000:3000 -e NODE_RED_URL=http://host.docker.internal:1880 node-re
 > Note: HTTP mode does **not** add authentication of its own. Put it behind an
 > authenticating reverse proxy / tunnel (e.g. Cloudflare Access) if you expose it publicly.
 
+#### Optional: validate the Cloudflare Access JWT at the origin
+
+If you front the server with Cloudflare Access, set both `CF_ACCESS_TEAM_DOMAIN`
+and `CF_ACCESS_AUD` to have the server **verify the `Cf-Access-Jwt-Assertion`
+header on every request** and reject anything that did not come through Access.
+This is defense in depth: it stops a caller that can reach the HTTP port directly
+(another container, a stray published port) from driving Node-RED even though the
+server itself holds the Node-RED token.
+
+```
+CF_ACCESS_TEAM_DOMAIN=yourteam.cloudflareaccess.com   # Zero Trust team domain
+CF_ACCESS_AUD=<Access application AUD tag>            # from the Access app
+```
+
+When either variable is unset the check is skipped (the server logs a warning at
+startup) and the Access edge remains the only control.
+
 ### Configuration via `.env`
 
 Create a `.env` file:
@@ -164,6 +181,8 @@ await server.start();
 | `NODE_RED_TOKEN` | API access token              |
 | `MCP_TRANSPORT`  | Set to `http` to run in Streamable HTTP mode (default `stdio`) |
 | `MCP_HTTP_PORT`  | Port for HTTP mode (default `3000`; setting it implies HTTP mode) |
+| `CF_ACCESS_TEAM_DOMAIN` | Cloudflare Zero Trust team domain (e.g. `yourteam.cloudflareaccess.com`); enables Access JWT validation when set with `CF_ACCESS_AUD` |
+| `CF_ACCESS_AUD`  | Cloudflare Access application AUD tag; required alongside `CF_ACCESS_TEAM_DOMAIN` to enforce origin-side validation |
 
 ## MCP Tools
 
