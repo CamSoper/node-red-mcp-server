@@ -25,6 +25,15 @@ const options = {
   verbose: false
 };
 
+// Transport selection via environment (overridden by CLI flags below).
+// MCP_TRANSPORT=http (or MCP_HTTP_PORT being set) switches to Streamable HTTP.
+if (process.env.MCP_TRANSPORT === 'http' || process.env.MCP_HTTP_PORT) {
+  options.transportType = 'http';
+}
+if (process.env.MCP_HTTP_PORT) {
+  options.httpPort = parseInt(process.env.MCP_HTTP_PORT, 10);
+}
+
 // Process arguments
 for (let i = 0; i < args.length; i++) {
   const arg = args[i];
@@ -33,6 +42,14 @@ for (let i = 0; i < args.length; i++) {
     options.nodeRedUrl = args[++i];
   } else if (arg === '--token' || arg === '-t') {
     options.nodeRedToken = args[++i];
+  } else if (arg === '--http') {
+    // Streamable HTTP transport. An optional port may follow (default 3000).
+    options.transportType = 'http';
+    const next = args[i + 1];
+    if (next && /^\d+$/.test(next)) {
+      options.httpPort = parseInt(next, 10);
+      i++;
+    }
   } else if (arg === '--verbose' || arg === '-v') {
     options.verbose = true;
   }
